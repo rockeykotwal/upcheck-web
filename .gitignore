@@ -16,7 +16,6 @@ dist-ssr
 
 # Test artifacts
 coverage
-.env.test
 
 # Editor directories and files
 .vscode/*
