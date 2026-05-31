@@ -16,8 +16,14 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     coverage: {
       provider: 'v8',
+      reporter: ['text', 'html', 'json', 'json-summary'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/components/ui/**', 'src/test/**'],
+      exclude: [
+        'src/components/ui/**',
+        'src/test/**',
+        'src/main.tsx',
+        'src/config/**',
+      ],
     },
   },
 })
