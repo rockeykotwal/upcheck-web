@@ -4,16 +4,28 @@ import { useNavigate } from 'react-router-dom';
 import { fetchStatusList, fetchStatusSearch } from '../api/status.api';
 import { useDebounce } from '../hooks/useDebounce';
 import StatusCard from '../components/status/StatusCard';
+import Skeleton from '../components/common/Skeleton';
 
 function StatusSkeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-16 rounded-lg border border-border bg-muted animate-pulse"
-        />
+        <Skeleton key={i} className="h-16 w-full" />
       ))}
+    </div>
+  );
+}
+
+function EmptyState({ query }: { query: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <p className="text-4xl mb-3">🔍</p>
+      <p className="font-medium text-foreground">
+        {query ? `No results for "${query}"` : 'No services found'}
+      </p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {query ? 'Try a different search term.' : 'Check back later.'}
+      </p>
     </div>
   );
 }
@@ -54,7 +66,7 @@ export default function DashboardPage() {
           placeholder="Search services…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full max-w-sm rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
 
@@ -65,11 +77,7 @@ export default function DashboardPage() {
           Failed to load services. Is the API running?
         </p>
       ) : !data || data.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {isSearching
-            ? `No results for "${debounced}".`
-            : 'No services found.'}
-        </p>
+        <EmptyState query={debounced} />
       ) : (
         <div className="space-y-2">
           {data.map((status) => (
