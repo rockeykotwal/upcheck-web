@@ -4,6 +4,21 @@ import { fetchStatusDetail } from '../api/status.api';
 import { fetchAiSummary } from '../api/ai.api';
 import IndicatorBadge from '../components/status/IndicatorBadge';
 import SnapshotTimeline from '../components/status/SnapshotTimeline';
+import Skeleton from '../components/common/Skeleton';
+
+function DetailSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-5 w-32" />
+      <div className="mt-8 space-y-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-12 w-full" />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function StatusDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -19,29 +34,19 @@ export default function StatusDetailPage() {
     mutationFn: () => fetchAiSummary(slug!),
   });
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4 max-w-2xl">
-        <div className="h-8 w-48 rounded bg-muted animate-pulse" />
-        <div className="h-6 w-32 rounded bg-muted animate-pulse" />
-        <div className="mt-8 space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-12 rounded bg-muted animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <DetailSkeleton />;
 
   if (isError || !data) {
     return (
-      <div className="space-y-2">
-        <p className="text-sm text-destructive">
-          Service not found or API unavailable.
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <p className="text-4xl mb-3">⚠️</p>
+        <p className="font-medium text-foreground">Service not found</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          This service doesn't exist or the API is unavailable.
         </p>
         <button
           onClick={() => navigate('/')}
-          className="text-sm text-primary underline underline-offset-2"
+          className="mt-4 text-sm text-primary underline underline-offset-2"
         >
           ← Back to all services
         </button>
@@ -52,7 +57,7 @@ export default function StatusDetailPage() {
   const { company, current, history } = data;
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="space-y-8">
       <div>
         <button
           onClick={() => navigate('/')}
@@ -61,7 +66,7 @@ export default function StatusDetailPage() {
           ← All services
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-2xl font-bold">{company.name}</h1>
           {current && <IndicatorBadge indicator={current.indicator} />}
         </div>
@@ -74,7 +79,7 @@ export default function StatusDetailPage() {
       </div>
 
       <div className="rounded-lg border border-border p-4 space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <h2 className="text-sm font-semibold">AI Incident Summary</h2>
           <button
             onClick={() => summary.mutate()}
@@ -91,9 +96,9 @@ export default function StatusDetailPage() {
 
         {summary.isPending && (
           <div className="space-y-2">
-            <div className="h-3 w-full rounded bg-muted animate-pulse" />
-            <div className="h-3 w-4/5 rounded bg-muted animate-pulse" />
-            <div className="h-3 w-3/5 rounded bg-muted animate-pulse" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-4/5" />
+            <Skeleton className="h-3 w-3/5" />
           </div>
         )}
 
