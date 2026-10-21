@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom';
-import { useAuthStore } from '@/store/auth.store';
 import { server } from './mocks/server';
 
 // jsdom does not implement matchMedia — required by next-themes
@@ -27,12 +26,6 @@ beforeAll(() => server.listen());
 afterEach(() => {
   server.resetHandlers();
   window.localStorage.clear();
-  useAuthStore.setState({
-    user: null,
-    accessToken: null,
-    isAuthenticated: false,
-    isLoading: false,
-  });
   vi.clearAllMocks();
 });
 
