@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchStatusDetail } from '../api/status.api';
+import { fetchAiSummary } from '../api/ai.api';
 import IndicatorBadge from '../components/status/IndicatorBadge';
 import SnapshotTimeline from '../components/status/SnapshotTimeline';
 
@@ -12,6 +13,10 @@ export default function StatusDetailPage() {
     queryKey: ['status', slug],
     queryFn: () => fetchStatusDetail(slug!),
     enabled: !!slug,
+  });
+
+  const summary = useMutation({
+    mutationFn: () => fetchAiSummary(slug!),
   });
 
   if (isLoading) {
@@ -64,6 +69,49 @@ export default function StatusDetailPage() {
         {current && (
           <p className="mt-1 text-sm text-muted-foreground">
             {current.description}
+          </p>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-border p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold">AI Incident Summary</h2>
+          <button
+            onClick={() => summary.mutate()}
+            disabled={summary.isPending}
+            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+          >
+            {summary.isPending
+              ? 'Generating…'
+              : summary.data
+                ? 'Regenerate'
+                : 'Generate Summary'}
+          </button>
+        </div>
+
+        {summary.isPending && (
+          <div className="space-y-2">
+            <div className="h-3 w-full rounded bg-muted animate-pulse" />
+            <div className="h-3 w-4/5 rounded bg-muted animate-pulse" />
+            <div className="h-3 w-3/5 rounded bg-muted animate-pulse" />
+          </div>
+        )}
+
+        {summary.isError && (
+          <p className="text-xs text-destructive">
+            Failed to generate summary. Is the AI provider running?
+          </p>
+        )}
+
+        {summary.data && !summary.isPending && (
+          <p className="text-sm text-foreground leading-relaxed">
+            {summary.data}
+          </p>
+        )}
+
+        {!summary.data && !summary.isPending && !summary.isError && (
+          <p className="text-xs text-muted-foreground">
+            Click "Generate Summary" to get an AI analysis of recent incidents.
           </p>
         )}
       </div>
