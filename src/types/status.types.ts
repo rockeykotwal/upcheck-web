@@ -5,6 +5,25 @@ export type StatusIndicator =
   | 'critical'
   | 'maintenance';
 
+export type ComponentStatus =
+  | 'operational'
+  | 'degraded_performance'
+  | 'partial_outage'
+  | 'major_outage'
+  | 'under_maintenance';
+
+export interface StatusComponent {
+  id: string;
+  name: string;
+  status: ComponentStatus;
+}
+
+export interface UptimeStats {
+  h24: number;
+  d7: number;
+  d30: number;
+}
+
 export interface Company {
   id: string;
   name: string;
@@ -21,6 +40,7 @@ export interface StatusSnapshot {
   slug: string;
   indicator: StatusIndicator;
   description: string;
+  components: StatusComponent[];
   fetchedAt: string;
 }
 
@@ -33,4 +53,5 @@ export interface CompanyDetail {
   company: Company;
   current: StatusSnapshot | null;
   history: StatusSnapshot[];
+  uptime: UptimeStats;
 }
