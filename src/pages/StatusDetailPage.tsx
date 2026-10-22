@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchStatusDetail } from '../api/status.api';
@@ -27,6 +28,7 @@ export default function StatusDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+  const [showAllComponents, setShowAllComponents] = useState(false);
   const { data: watchlist } = useWatchlist();
   const isWatching = watchlist?.some((w) => w.company.slug === slug) ?? false;
   const toggleWatch = useToggleWatch(slug!, isWatching);
@@ -61,7 +63,7 @@ export default function StatusDetailPage() {
     );
   }
 
-  const { company, current, history } = data;
+  const { company, current, history, uptime } = data;
 
   return (
     <div className="space-y-8">
@@ -96,6 +98,29 @@ export default function StatusDetailPage() {
             {current.description}
           </p>
         )}
+      </div>
+
+      {/* Uptime stats */}
+      <div className="grid grid-cols-3 gap-3">
+        {(
+          [
+            ['24h', uptime.h24],
+            ['7d', uptime.d7],
+            ['30d', uptime.d30],
+          ] as const
+        ).map(([label, pct]) => (
+          <div
+            key={label}
+            className="rounded-lg border border-border p-4 text-center"
+          >
+            <p className="text-xs text-muted-foreground mb-1">{label} uptime</p>
+            <p
+              className={`text-xl font-bold ${pct >= 99 ? 'text-green-500' : pct >= 95 ? 'text-yellow-500' : 'text-red-500'}`}
+            >
+              {pct}%
+            </p>
+          </div>
+        ))}
       </div>
 
       <div className="rounded-lg border border-border p-4 space-y-3">
@@ -140,6 +165,51 @@ export default function StatusDetailPage() {
           </p>
         )}
       </div>
+
+      {/* Component breakdown */}
+      {current?.components && current.components.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold text-foreground mb-3">
+            Components
+          </h2>
+          <div className="space-y-2">
+            {(showAllComponents
+              ? current.components
+              : current.components.slice(0, 5)
+            ).map((c) => (
+              <div
+                key={c.id}
+                className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
+              >
+                <span className="text-sm text-foreground">{c.name}</span>
+                <span
+                  className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    c.status === 'operational'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : c.status === 'under_maintenance'
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                        : c.status === 'degraded_performance'
+                          ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  }`}
+                >
+                  {c.status.replace(/_/g, ' ')}
+                </span>
+              </div>
+            ))}
+          </div>
+          {current.components.length > 5 && (
+            <button
+              onClick={() => setShowAllComponents((v) => !v)}
+              className="mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {showAllComponents
+                ? 'Show less'
+                : `Show all ${current.components.length} components`}
+            </button>
+          )}
+        </div>
+      )}
 
       <div>
         <h2 className="text-sm font-semibold text-foreground mb-3">

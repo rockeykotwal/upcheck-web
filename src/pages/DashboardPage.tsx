@@ -41,12 +41,14 @@ export default function DashboardPage() {
     queryKey: ['status'],
     queryFn: fetchStatusList,
     enabled: !isSearching,
+    refetchInterval: 60_000,
   });
 
   const searchQuery = useQuery({
     queryKey: ['status', 'search', debounced],
     queryFn: () => fetchStatusSearch(debounced),
     enabled: isSearching,
+    refetchInterval: 60_000,
   });
 
   const { data, isLoading, isError } = isSearching ? searchQuery : listQuery;
