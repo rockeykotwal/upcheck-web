@@ -1,5 +1,13 @@
-import type { StatusSnapshot } from '../../types/status.types';
+import type { StatusSnapshot, StatusIndicator } from '../../types/status.types';
 import IndicatorBadge from './IndicatorBadge';
+
+const trackDot: Record<StatusIndicator, string> = {
+  none: 'bg-green-500',
+  minor: 'bg-yellow-500',
+  major: 'bg-red-500',
+  critical: 'bg-red-600',
+  maintenance: 'bg-blue-500',
+};
 
 interface Props {
   history: StatusSnapshot[];
@@ -22,18 +30,20 @@ export default function SnapshotTimeline({ history }: Props) {
   }
 
   return (
-    <ol className="space-y-3">
+    <ol className="relative border-l border-border ml-2 space-y-0">
       {history.map((snap, i) => (
-        <li key={i} className="flex items-start gap-3">
-          <div className="mt-0.5 shrink-0">
+        <li key={i} className="relative pl-6 pb-5 last:pb-0">
+          {/* Track dot */}
+          <span
+            className={`absolute -left-[5px] top-1 size-2.5 rounded-full border-2 border-background ${trackDot[snap.indicator]}`}
+          />
+          <div className="flex items-center gap-2 flex-wrap">
             <IndicatorBadge indicator={snap.indicator} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm text-foreground">{snap.description}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <span className="text-xs text-muted-foreground">
               {formatDate(snap.fetchedAt)}
-            </p>
+            </span>
           </div>
+          <p className="mt-1 text-sm text-foreground">{snap.description}</p>
         </li>
       ))}
     </ol>

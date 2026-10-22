@@ -10,11 +10,15 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="border-b border-border px-4 sm:px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm px-4 sm:px-6 py-3.5 flex items-center justify-between">
         <Link
           to="/"
-          className="text-lg font-bold hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition-opacity"
         >
+          <span className="relative flex size-2.5 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60" />
+            <span className="relative inline-flex rounded-full size-2.5 bg-green-500" />
+          </span>
           {env.appName}
         </Link>
 
@@ -49,6 +53,16 @@ export default function DashboardLayout() {
           )}
         </div>
       </header>
+
+      {isAuthenticated && user && !user.emailVerifiedAt && (
+        <div className="border-b border-yellow-500/20 bg-yellow-50/50 dark:bg-yellow-900/10 px-4 sm:px-6 py-2.5 flex items-center gap-2 text-xs text-yellow-700 dark:text-yellow-400">
+          <span className="size-1.5 rounded-full bg-yellow-500 shrink-0" />
+          <span>
+            Please verify your email address. Check your inbox for a
+            verification link.
+          </span>
+        </div>
+      )}
 
       <main className="flex-1 px-4 sm:px-6 py-6 overflow-y-auto max-w-3xl w-full mx-auto">
         <Outlet />

@@ -56,7 +56,9 @@ export default function DashboardPage() {
     refetchInterval: 60_000,
   });
 
-  const { data, isLoading, isError } = isSearching ? searchQuery : listQuery;
+  const { data, isLoading, isError, dataUpdatedAt } = isSearching
+    ? searchQuery
+    : listQuery;
 
   const categories = data
     ? [
@@ -71,14 +73,42 @@ export default function DashboardPage() {
       ? data.filter((s) => s.company.category === activeCategory)
       : data;
 
+  const degradedCount =
+    data?.filter((s) => s.current && s.current.indicator !== 'none').length ??
+    0;
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Service Status</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Live status for all monitored services.
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold">Service Status</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Live status for all monitored services.
+          </p>
+        </div>
+        {dataUpdatedAt > 0 && (
+          <p className="text-xs text-muted-foreground pt-1 shrink-0">
+            Updated {new Date(dataUpdatedAt).toLocaleTimeString()}
+          </p>
+        )}
       </div>
+
+      {data && !isSearching && (
+        <div
+          className={`mb-4 flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm font-medium ${
+            degradedCount === 0
+              ? 'border-green-500/20 bg-green-50/50 text-green-700 dark:bg-green-900/10 dark:text-green-400'
+              : 'border-yellow-500/20 bg-yellow-50/50 text-yellow-700 dark:bg-yellow-900/10 dark:text-yellow-400'
+          }`}
+        >
+          <span
+            className={`size-2 rounded-full shrink-0 ${degradedCount === 0 ? 'bg-green-500' : 'bg-yellow-500'}`}
+          />
+          {degradedCount === 0
+            ? 'All systems operational'
+            : `${degradedCount} service${degradedCount > 1 ? 's' : ''} experiencing issues`}
+        </div>
+      )}
 
       <div className="mb-4">
         <input

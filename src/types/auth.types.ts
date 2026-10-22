@@ -3,6 +3,7 @@ export interface SafeUser {
   firstName: string;
   lastName: string;
   email: string;
+  emailVerifiedAt: string | null;
   createdAt: string | null;
   updatedAt: string | null;
 }
