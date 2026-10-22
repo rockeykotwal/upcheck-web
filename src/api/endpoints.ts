@@ -13,4 +13,9 @@ export const ENDPOINTS = {
   AI: {
     SUMMARY: (slug: string) => `/api/ai/summary/${slug}`,
   },
+  WATCHLIST: {
+    LIST: '/api/watchlist',
+    WATCH: (slug: string) => `/api/watchlist/${slug}`,
+    UNWATCH: (slug: string) => `/api/watchlist/${slug}`,
+  },
 } as const;

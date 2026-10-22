@@ -5,6 +5,9 @@ import { fetchAiSummary } from '../api/ai.api';
 import IndicatorBadge from '../components/status/IndicatorBadge';
 import SnapshotTimeline from '../components/status/SnapshotTimeline';
 import Skeleton from '../components/common/Skeleton';
+import { useAuthStore } from '../store/auth.store';
+import { useWatchlist } from '../features/watchlist/hooks/useWatchlist';
+import { useToggleWatch } from '../features/watchlist/hooks/useToggleWatch';
 
 function DetailSkeleton() {
   return (
@@ -23,6 +26,10 @@ function DetailSkeleton() {
 export default function StatusDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+  const { data: watchlist } = useWatchlist();
+  const isWatching = watchlist?.some((w) => w.company.slug === slug) ?? false;
+  const toggleWatch = useToggleWatch(slug!, isWatching);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['status', slug],
@@ -69,6 +76,19 @@ export default function StatusDetailPage() {
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-2xl font-bold">{company.name}</h1>
           {current && <IndicatorBadge indicator={current.indicator} />}
+          <button
+            onClick={() => {
+              if (!isAuthenticated) {
+                navigate('/login');
+                return;
+              }
+              toggleWatch.mutate();
+            }}
+            disabled={toggleWatch.isPending}
+            className="ml-auto rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors disabled:opacity-50"
+          >
+            {isWatching ? 'Unwatch' : 'Watch'}
+          </button>
         </div>
 
         {current && (
