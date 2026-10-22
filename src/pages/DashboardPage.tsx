@@ -30,9 +30,14 @@ function EmptyState({ query }: { query: string }) {
   );
 }
 
+function formatCategory(cat: string) {
+  return cat.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const debounced = useDebounce(query);
 
   const isSearching = debounced.trim().length > 0;
@@ -53,6 +58,19 @@ export default function DashboardPage() {
 
   const { data, isLoading, isError } = isSearching ? searchQuery : listQuery;
 
+  const categories = data
+    ? [
+        ...new Set(
+          data.map((s) => s.company.category).filter(Boolean) as string[]
+        ),
+      ].sort()
+    : [];
+
+  const filtered =
+    data && activeCategory
+      ? data.filter((s) => s.company.category === activeCategory)
+      : data;
+
   return (
     <div>
       <div className="mb-6">
@@ -72,17 +90,47 @@ export default function DashboardPage() {
         />
       </div>
 
+      {!isSearching && categories.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          <button
+            onClick={() => setActiveCategory(null)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              activeCategory === null
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() =>
+                setActiveCategory(activeCategory === cat ? null : cat)
+              }
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                activeCategory === cat
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {formatCategory(cat)}
+            </button>
+          ))}
+        </div>
+      )}
+
       {isLoading ? (
         <StatusSkeleton />
       ) : isError ? (
         <p className="text-sm text-destructive">
           Failed to load services. Is the API running?
         </p>
-      ) : !data || data.length === 0 ? (
+      ) : !filtered || filtered.length === 0 ? (
         <EmptyState query={debounced} />
       ) : (
         <div className="space-y-2">
-          {data.map((status) => (
+          {filtered.map((status) => (
             <StatusCard
               key={status.company.slug}
               status={status}
