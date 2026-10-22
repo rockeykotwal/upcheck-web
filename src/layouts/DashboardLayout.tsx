@@ -22,6 +22,12 @@ export default function DashboardLayout() {
           <ThemeToggle />
           {isAuthenticated ? (
             <>
+              <Link
+                to="/watchlist"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Watchlist
+              </Link>
               <span className="text-sm text-muted-foreground hidden sm:block">
                 {user?.firstName} {user?.lastName}
               </span>
