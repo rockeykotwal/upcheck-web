@@ -1,4 +1,10 @@
 export const ENDPOINTS = {
+  AUTH: {
+    LOGIN: '/api/auth/login',
+    SIGNUP: '/api/auth/signup',
+    LOGOUT: '/api/auth/logout',
+    REFRESH: '/api/auth/refresh',
+  },
   STATUS: {
     LIST: '/api/status',
     SEARCH: '/api/status/search',
