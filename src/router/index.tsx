@@ -10,6 +10,8 @@ const StatusDetailPage = lazy(() => import('../pages/StatusDetailPage'));
 const WatchlistPage = lazy(() => import('../pages/WatchlistPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 
 const fallback = (
   <div className="min-h-screen flex items-center justify-center text-muted-foreground text-sm">
@@ -35,6 +37,22 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={fallback}>
             <RegisterPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/forgot-password',
+        element: (
+          <Suspense fallback={fallback}>
+            <ForgotPasswordPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/reset-password',
+        element: (
+          <Suspense fallback={fallback}>
+            <ResetPasswordPage />
           </Suspense>
         ),
       },

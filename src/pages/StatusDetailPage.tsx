@@ -119,6 +119,12 @@ export default function StatusDetailPage() {
             >
               {pct}%
             </p>
+            <div className="mt-2 h-1 w-full rounded-full bg-muted overflow-hidden">
+              <div
+                className={`h-full rounded-full ${pct >= 99 ? 'bg-green-500' : pct >= 95 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
           </div>
         ))}
       </div>

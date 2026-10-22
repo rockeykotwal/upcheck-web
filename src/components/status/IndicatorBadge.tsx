@@ -1,6 +1,6 @@
 import type { StatusIndicator } from '../../types/status.types';
 
-const styles: Record<StatusIndicator, string> = {
+const wrapperStyles: Record<StatusIndicator, string> = {
   none: 'bg-green-100  text-green-800  dark:bg-green-900/30  dark:text-green-400',
   minor:
     'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
@@ -10,6 +10,14 @@ const styles: Record<StatusIndicator, string> = {
     'bg-red-100    text-red-800    dark:bg-red-900/30    dark:text-red-400',
   maintenance:
     'bg-blue-100   text-blue-800   dark:bg-blue-900/30   dark:text-blue-400',
+};
+
+const dotColors: Record<StatusIndicator, string> = {
+  none: 'bg-green-500',
+  minor: 'bg-yellow-500',
+  major: 'bg-red-500',
+  critical: 'bg-red-600',
+  maintenance: 'bg-blue-500',
 };
 
 const labels: Record<StatusIndicator, string> = {
@@ -27,8 +35,18 @@ interface Props {
 export default function IndicatorBadge({ indicator }: Props) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[indicator]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${wrapperStyles[indicator]}`}
     >
+      {indicator === 'none' ? (
+        <span className="relative flex size-1.5 shrink-0">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+          <span className="relative inline-flex rounded-full size-1.5 bg-green-500" />
+        </span>
+      ) : (
+        <span
+          className={`size-1.5 rounded-full shrink-0 ${dotColors[indicator]}`}
+        />
+      )}
       {labels[indicator]}
     </span>
   );
