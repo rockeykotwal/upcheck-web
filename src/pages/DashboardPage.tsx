@@ -1,17 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { fetchStatusList, fetchStatusSearch } from '../api/status.api';
 import { useDebounce } from '../hooks/useDebounce';
 import StatusCard from '../components/status/StatusCard';
-import Skeleton from '../components/common/Skeleton';
 
-function StatusSkeleton() {
+function ServerlessLoader() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setProgress(100), 50);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
-    <div className="space-y-3">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-16 w-full" />
-      ))}
+    <div className="flex flex-col items-center justify-center py-24 gap-5">
+      <div className="relative size-10">
+        <div className="absolute inset-0 rounded-full border-[3px] border-border" />
+        <div className="absolute inset-0 rounded-full border-[3px] border-t-green-500 animate-spin" />
+      </div>
+
+      <div className="text-center space-y-1.5 max-w-xs">
+        <p className="text-sm font-medium text-foreground">
+          Fetching live status…
+        </p>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Running on serverless — cold starts can take up to 10 seconds.
+        </p>
+      </div>
+
+      <div className="w-48 h-0.5 rounded-full bg-border overflow-hidden">
+        <div
+          className="h-full rounded-full bg-green-500 transition-all ease-out"
+          style={{ width: `${progress}%`, transitionDuration: '5000ms' }}
+        />
+      </div>
     </div>
   );
 }
@@ -151,7 +174,7 @@ export default function DashboardPage() {
       )}
 
       {isLoading ? (
-        <StatusSkeleton />
+        <ServerlessLoader />
       ) : isError ? (
         <p className="text-sm text-destructive">
           Failed to load services. Is the API running?
