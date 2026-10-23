@@ -30,7 +30,7 @@ export default function AppProviders({ children }: AppProvidersProps) {
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
           <AuthInitializer>{children}</AuthInitializer>
-          <Toaster position="bottom-center" closeButton />
+          <Toaster position="bottom-right" closeButton />
         </ErrorBoundary>
       </QueryClientProvider>
     </ThemeProvider>
