@@ -47,8 +47,9 @@ client.interceptors.response.use(
     const is401 = error.response?.status === 401;
     const isRetry = config?._retry;
     const isRefreshCall = config?.url === ENDPOINTS.AUTH.REFRESH;
+    const isLoginCall = config?.url === ENDPOINTS.AUTH.LOGIN;
 
-    if (!is401 || isRetry || isRefreshCall || !config) {
+    if (!is401 || isRetry || isRefreshCall || isLoginCall || !config) {
       return Promise.reject(error);
     }
 
