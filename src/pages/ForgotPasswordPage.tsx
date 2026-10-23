@@ -49,8 +49,10 @@ export default function ForgotPasswordPage() {
         onSubmit={handleSubmit((data) => mutate(data.email))}
         className="space-y-4"
       >
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium">
+            Email
+          </Label>
           <Input
             id="email"
             type="email"
