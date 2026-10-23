@@ -1,12 +1,26 @@
+import { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { env } from '../config/env';
 import ThemeToggle from '../components/common/ThemeToggle';
 import { useAuthStore } from '../store/auth.store';
 import { useLogout } from '../features/auth/hooks/useLogout';
 
+function useBannerDismissed(userId: string | undefined) {
+  const key = `emailBanner:dismissed:${userId}`;
+  const [dismissed, setDismissed] = useState(
+    () => localStorage.getItem(key) === '1'
+  );
+  const dismiss = () => {
+    localStorage.setItem(key, '1');
+    setDismissed(true);
+  };
+  return [dismissed, dismiss] as const;
+}
+
 export default function DashboardLayout() {
   const { isAuthenticated, user } = useAuthStore();
   const { mutate: logout, isPending } = useLogout();
+  const [bannerDismissed, dismissBanner] = useBannerDismissed(user?.id);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -54,13 +68,20 @@ export default function DashboardLayout() {
         </div>
       </header>
 
-      {isAuthenticated && user && !user.emailVerifiedAt && (
+      {isAuthenticated && user && !user.emailVerifiedAt && !bannerDismissed && (
         <div className="border-b border-yellow-500/20 bg-yellow-50/50 dark:bg-yellow-900/10 px-4 sm:px-6 py-2.5 flex items-center gap-2 text-xs text-yellow-700 dark:text-yellow-400">
           <span className="size-1.5 rounded-full bg-yellow-500 shrink-0" />
-          <span>
+          <span className="flex-1">
             Please verify your email address. Check your inbox for a
             verification link.
           </span>
+          <button
+            onClick={dismissBanner}
+            aria-label="Dismiss"
+            className="ml-2 hover:opacity-70 transition-opacity"
+          >
+            ✕
+          </button>
         </div>
       )}
 
