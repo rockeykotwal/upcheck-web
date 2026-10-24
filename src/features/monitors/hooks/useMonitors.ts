@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/store/auth.store';
 import {
   fetchMonitors,
   createMonitor,
@@ -6,9 +7,11 @@ import {
 } from '@/api/monitors.api';
 
 export function useMonitors() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return useQuery({
     queryKey: ['monitors'],
     queryFn: fetchMonitors,
+    enabled: isAuthenticated,
   });
 }
 
