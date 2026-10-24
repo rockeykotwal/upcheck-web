@@ -12,6 +12,7 @@ export const ENDPOINTS = {
     LIST: '/api/status',
     SEARCH: '/api/status/search',
     DETAIL: (slug: string) => `/api/status/${slug}`,
+    POSTMORTEMS: (slug: string) => `/api/status/${slug}/postmortems`,
   },
   AI: {
     SUMMARY: (slug: string) => `/api/ai/summary/${slug}`,

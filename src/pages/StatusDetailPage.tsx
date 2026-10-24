@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchStatusDetail } from '../api/status.api';
+import { fetchStatusDetail, fetchPostmortems } from '../api/status.api';
 import { fetchAiSummary } from '../api/ai.api';
 import IndicatorBadge from '../components/status/IndicatorBadge';
 import SnapshotTimeline from '../components/status/SnapshotTimeline';
@@ -9,6 +9,58 @@ import Skeleton from '../components/common/Skeleton';
 import { useAuthStore } from '../store/auth.store';
 import { useWatchlist } from '../features/watchlist/hooks/useWatchlist';
 import { useToggleWatch } from '../features/watchlist/hooks/useToggleWatch';
+import type { Postmortem } from '../types/status.types';
+
+function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function PostmortemCard({ pm }: { pm: Postmortem }) {
+  const [expanded, setExpanded] = useState(false);
+  const start = new Date(pm.startedAt);
+  const dateStr = start.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  const timeStr = start.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return (
+    <div className="rounded-lg border border-border p-4 space-y-3">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-foreground">
+            {dateStr} at {timeStr}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Lasted {formatDuration(pm.durationMinutes)} &middot;{' '}
+            {pm.snapshotCount} data points
+          </p>
+        </div>
+        <IndicatorBadge indicator={pm.peakIndicator} />
+      </div>
+
+      {expanded && (
+        <p className="text-sm text-foreground leading-relaxed border-t border-border pt-3">
+          {pm.summary}
+        </p>
+      )}
+
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {expanded ? 'Hide postmortem ↑' : 'View AI postmortem ↓'}
+      </button>
+    </div>
+  );
+}
 
 function DetailSkeleton() {
   return (
@@ -36,6 +88,12 @@ export default function StatusDetailPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['status', slug],
     queryFn: () => fetchStatusDetail(slug!),
+    enabled: !!slug,
+  });
+
+  const { data: postmortems } = useQuery({
+    queryKey: ['postmortems', slug],
+    queryFn: () => fetchPostmortems(slug!),
     enabled: !!slug,
   });
 
@@ -223,6 +281,24 @@ export default function StatusDetailPage() {
         </h2>
         <SnapshotTimeline history={history} />
       </div>
+
+      {postmortems && postmortems.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-sm font-semibold text-foreground">
+              Incident History
+            </h2>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              {postmortems.length}
+            </span>
+          </div>
+          <div className="space-y-3">
+            {postmortems.map((pm) => (
+              <PostmortemCard key={String(pm._id)} pm={pm} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
