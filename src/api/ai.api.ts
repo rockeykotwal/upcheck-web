@@ -7,3 +7,10 @@ export async function fetchAiSummary(slug: string): Promise<string> {
   );
   return res.data.summary;
 }
+
+export async function sendAiSummary(slug: string): Promise<number> {
+  const res = await client.post<{ sent: number }>(
+    ENDPOINTS.AI.SUMMARY_SEND(slug)
+  );
+  return res.data.sent;
+}

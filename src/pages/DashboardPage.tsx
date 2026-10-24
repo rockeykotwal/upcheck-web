@@ -3,7 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { fetchStatusList, fetchStatusSearch } from '../api/status.api';
 import { useDebounce } from '../hooks/useDebounce';
+import { useAuthStore } from '../store/auth.store';
+import {
+  useMonitors,
+  useDeleteMonitor,
+} from '../features/monitors/hooks/useMonitors';
 import StatusCard from '../components/status/StatusCard';
+import IndicatorBadge from '../components/status/IndicatorBadge';
+import AddMonitorModal from '../features/monitors/components/AddMonitorModal';
 
 function ServerlessLoader() {
   const [progress, setProgress] = useState(0);
@@ -59,8 +66,10 @@ function formatCategory(cat: string) {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
   const debounced = useDebounce(query);
 
   const isSearching = debounced.trim().length > 0;
@@ -78,6 +87,9 @@ export default function DashboardPage() {
     enabled: isSearching,
     refetchInterval: 60_000,
   });
+
+  const monitorsQuery = useMonitors();
+  const deleteMonitor = useDeleteMonitor();
 
   const { data, isLoading, isError, dataUpdatedAt } = isSearching
     ? searchQuery
@@ -100,6 +112,8 @@ export default function DashboardPage() {
     data?.filter((s) => s.current && s.current.indicator !== 'none').length ??
     0;
 
+  const myMonitors = isAuthenticated ? (monitorsQuery.data ?? []) : [];
+
   return (
     <div>
       <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
@@ -109,12 +123,66 @@ export default function DashboardPage() {
             Live status for all monitored services.
           </p>
         </div>
-        {dataUpdatedAt > 0 && (
-          <p className="text-xs text-muted-foreground pt-1 shrink-0">
-            Updated {new Date(dataUpdatedAt).toLocaleTimeString()}
-          </p>
-        )}
+        <div className="flex items-center gap-3">
+          {dataUpdatedAt > 0 && (
+            <p className="text-xs text-muted-foreground pt-1 shrink-0">
+              Updated {new Date(dataUpdatedAt).toLocaleTimeString()}
+            </p>
+          )}
+          {isAuthenticated && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              + Add Service
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* My Custom Monitors */}
+      {isAuthenticated && myMonitors.length > 0 && !isSearching && (
+        <div className="mb-6">
+          <h2 className="text-sm font-semibold text-foreground mb-3">
+            My Services
+          </h2>
+          <div className="space-y-2">
+            {myMonitors.map(({ company, current }) => (
+              <div
+                key={company.slug}
+                className="flex items-center justify-between rounded-lg border border-border px-4 py-3 cursor-pointer hover:bg-muted/40 transition-colors"
+                onClick={() => navigate(`/status/${company.slug}`)}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {company.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {company.statusPageUrl}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-3">
+                  {current && <IndicatorBadge indicator={current.indicator} />}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm(`Delete monitor "${company.name}"?`)) {
+                        deleteMonitor.mutate(company.slug);
+                      }
+                    }}
+                    className="text-xs text-muted-foreground hover:text-destructive transition-colors px-1"
+                    title="Delete monitor"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {data && !isSearching && (
         <div
@@ -191,6 +259,10 @@ export default function DashboardPage() {
             />
           ))}
         </div>
+      )}
+
+      {showAddModal && (
+        <AddMonitorModal onClose={() => setShowAddModal(false)} />
       )}
     </div>
   );

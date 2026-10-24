@@ -16,6 +16,12 @@ export const ENDPOINTS = {
   },
   AI: {
     SUMMARY: (slug: string) => `/api/ai/summary/${slug}`,
+    SUMMARY_SEND: (slug: string) => `/api/ai/summary/${slug}/send`,
+  },
+  MONITORS: {
+    LIST: '/api/monitors',
+    CREATE: '/api/monitors',
+    DELETE: (slug: string) => `/api/monitors/${slug}`,
   },
   WATCHLIST: {
     LIST: '/api/watchlist',
