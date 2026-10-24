@@ -32,7 +32,13 @@ export interface Company {
   statusPageUrl: string;
   provider: string;
   category: string | null;
+  userId: string | null;
   createdAt: string | null;
+}
+
+export interface MonitorWithStatus {
+  company: Company;
+  current: StatusSnapshot | null;
 }
 
 export interface StatusSnapshot {

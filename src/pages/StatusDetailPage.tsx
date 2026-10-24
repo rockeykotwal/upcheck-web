@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchStatusDetail, fetchPostmortems } from '../api/status.api';
-import { fetchAiSummary } from '../api/ai.api';
+import { fetchAiSummary, sendAiSummary } from '../api/ai.api';
 import IndicatorBadge from '../components/status/IndicatorBadge';
 import SnapshotTimeline from '../components/status/SnapshotTimeline';
 import Skeleton from '../components/common/Skeleton';
@@ -99,6 +99,12 @@ export default function StatusDetailPage() {
 
   const summary = useMutation({
     mutationFn: () => fetchAiSummary(slug!),
+  });
+
+  const [sentCount, setSentCount] = useState<number | null>(null);
+  const sendSummary = useMutation({
+    mutationFn: () => sendAiSummary(slug!),
+    onSuccess: (count) => setSentCount(count),
   });
 
   if (isLoading) return <DetailSkeleton />;
@@ -218,9 +224,35 @@ export default function StatusDetailPage() {
         )}
 
         {summary.data && !summary.isPending && (
-          <p className="text-sm text-foreground leading-relaxed">
-            {summary.data}
-          </p>
+          <>
+            <p className="text-sm text-foreground leading-relaxed">
+              {summary.data}
+            </p>
+            {isAuthenticated && (
+              <div className="flex items-center gap-3 pt-1">
+                <button
+                  onClick={() => {
+                    setSentCount(null);
+                    sendSummary.mutate();
+                  }}
+                  disabled={sendSummary.isPending}
+                  className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-50 transition-colors"
+                >
+                  {sendSummary.isPending ? 'Sending…' : 'Send to watchers'}
+                </button>
+                {sentCount !== null && !sendSummary.isPending && (
+                  <p className="text-xs text-green-600 dark:text-green-400">
+                    {sentCount === 0
+                      ? 'No watchers to notify.'
+                      : `Sent to ${sentCount} watcher${sentCount > 1 ? 's' : ''}.`}
+                  </p>
+                )}
+                {sendSummary.isError && (
+                  <p className="text-xs text-destructive">Failed to send.</p>
+                )}
+              </div>
+            )}
+          </>
         )}
 
         {!summary.data && !summary.isPending && !summary.isError && (
