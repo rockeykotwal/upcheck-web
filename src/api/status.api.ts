@@ -1,6 +1,10 @@
 import client from './client';
 import { ENDPOINTS } from './endpoints';
-import type { CompanyStatus, CompanyDetail } from '../types/status.types';
+import type {
+  CompanyStatus,
+  CompanyDetail,
+  Postmortem,
+} from '../types/status.types';
 
 export async function fetchStatusList(): Promise<CompanyStatus[]> {
   const res = await client.get<{ statuses: CompanyStatus[] }>(
@@ -24,4 +28,11 @@ export async function fetchStatusSearch(
 export async function fetchStatusDetail(slug: string): Promise<CompanyDetail> {
   const res = await client.get<CompanyDetail>(ENDPOINTS.STATUS.DETAIL(slug));
   return res.data;
+}
+
+export async function fetchPostmortems(slug: string): Promise<Postmortem[]> {
+  const res = await client.get<{ postmortems: Postmortem[] }>(
+    ENDPOINTS.STATUS.POSTMORTEMS(slug)
+  );
+  return res.data.postmortems;
 }

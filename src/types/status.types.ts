@@ -55,3 +55,16 @@ export interface CompanyDetail {
   history: StatusSnapshot[];
   uptime: UptimeStats;
 }
+
+export interface Postmortem {
+  _id: string;
+  slug: string;
+  companyId: string;
+  startedAt: string;
+  resolvedAt: string;
+  durationMinutes: number;
+  peakIndicator: StatusIndicator;
+  snapshotCount: number;
+  summary: string;
+  createdAt: string;
+}
