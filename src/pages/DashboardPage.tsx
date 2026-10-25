@@ -140,6 +140,48 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="rounded-lg border border-border bg-card px-4 py-4">
+          <p className="text-2xl font-bold text-foreground">
+            {isLoading ? '—' : (data?.length ?? 0)}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">Total Services</p>
+        </div>
+        <div className="rounded-lg border border-green-500/20 bg-green-50/50 dark:bg-green-900/10 px-4 py-4">
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+            {isLoading ? '—' : (data?.length ?? 0) - degradedCount}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">Operational</p>
+        </div>
+        <div
+          className={`rounded-lg border px-4 py-4 ${
+            degradedCount > 0
+              ? 'border-yellow-500/20 bg-yellow-50/50 dark:bg-yellow-900/10'
+              : 'border-border bg-card'
+          }`}
+        >
+          <p
+            className={`text-2xl font-bold ${
+              degradedCount > 0
+                ? 'text-yellow-600 dark:text-yellow-400'
+                : 'text-muted-foreground'
+            }`}
+          >
+            {isLoading ? '—' : degradedCount}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">With Issues</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card px-4 py-4">
+          <p className="text-2xl font-bold text-foreground">
+            {isLoading || !data
+              ? '—'
+              : `${(((data.length - degradedCount) / data.length) * 100).toFixed(1)}%`}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">Uptime Rate</p>
+        </div>
+      </div>
+
       {/* My Custom Monitors */}
       {isAuthenticated && myMonitors.length > 0 && !isSearching && (
         <div className="mb-6">
@@ -181,23 +223,6 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {data && !isSearching && (
-        <div
-          className={`mb-4 flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm font-medium ${
-            degradedCount === 0
-              ? 'border-green-500/20 bg-green-50/50 text-green-700 dark:bg-green-900/10 dark:text-green-400'
-              : 'border-yellow-500/20 bg-yellow-50/50 text-yellow-700 dark:bg-yellow-900/10 dark:text-yellow-400'
-          }`}
-        >
-          <span
-            className={`size-2 rounded-full shrink-0 ${degradedCount === 0 ? 'bg-green-500' : 'bg-yellow-500'}`}
-          />
-          {degradedCount === 0
-            ? 'All systems operational'
-            : `${degradedCount} service${degradedCount > 1 ? 's' : ''} experiencing issues`}
         </div>
       )}
 

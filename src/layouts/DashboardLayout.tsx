@@ -24,7 +24,22 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      {/* Gutter atmosphere — only on large screens where gutters actually exist */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none hidden lg:block fixed left-0 top-1/4 -translate-x-1/3 w-[500px] h-[580px] rounded-full blur-[120px] opacity-[0.22] z-0"
+        style={{
+          background: 'radial-gradient(circle, #A31C1B, transparent 70%)',
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none hidden lg:block fixed right-0 top-[38%] translate-x-1/3 w-[460px] h-[540px] rounded-full blur-[120px] opacity-[0.15] z-0"
+        style={{
+          background: 'radial-gradient(circle, #1e5c30, transparent 70%)',
+        }}
+      />
+      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm px-4 sm:px-6 py-3.5 flex items-center justify-between relative">
         <Link
           to="/"
           className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition-opacity"
@@ -85,7 +100,7 @@ export default function DashboardLayout() {
         </div>
       )}
 
-      <main className="flex-1 px-4 sm:px-6 py-6 overflow-y-auto max-w-3xl w-full mx-auto">
+      <main className="flex-1 px-4 sm:px-6 py-6 overflow-y-auto max-w-5xl w-full mx-auto relative z-[1]">
         <Outlet />
       </main>
 
