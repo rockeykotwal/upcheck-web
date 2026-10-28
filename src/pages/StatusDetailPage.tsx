@@ -168,9 +168,9 @@ export default function StatusDetailPage() {
       <div className="grid grid-cols-3 gap-3">
         {(
           [
+            ['1h', uptime.h1],
+            ['12h', uptime.h12],
             ['24h', uptime.h24],
-            ['7d', uptime.d7],
-            ['30d', uptime.d30],
           ] as const
         ).map(([label, pct]) => (
           <div

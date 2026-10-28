@@ -19,9 +19,9 @@ export interface StatusComponent {
 }
 
 export interface UptimeStats {
+  h1: number;
+  h12: number;
   h24: number;
-  d7: number;
-  d30: number;
 }
 
 export interface Company {
