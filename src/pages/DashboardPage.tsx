@@ -85,7 +85,6 @@ export default function DashboardPage() {
     queryKey: ['status', 'search', debounced],
     queryFn: () => fetchStatusSearch(debounced),
     enabled: isSearching,
-    refetchInterval: 60_000,
   });
 
   const monitorsQuery = useMonitors();
